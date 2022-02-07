@@ -18,7 +18,10 @@
 """descriptions Module."""
 
 from .executable import Executable
+from .simple_launch_argument import SimpleLaunchArgument
+
 
 __all__ = [
     'Executable'
+    'SimpleLaunchArgument',
 ]
