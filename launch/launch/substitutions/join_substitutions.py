@@ -17,21 +17,20 @@ from __future__ import annotations
 
 from math import floor
 
-from typing import List, Iterable
+from typing import List
 from typing import Text
 
 from ..launch_context import LaunchContext
 from ..some_substitutions_type import SomeSubstitutionsType
 from ..substitution import Substitution
 from ..utilities import normalize_to_list_of_substitutions
-from ..substitutions.text_substitution import TextSubstitution
 from .substitution_failure import SubstitutionFailure
 
 
 class JoinSubstitutions(Substitution):
     """
     Substitution that join other substitutions on evaluation.
-    
+
     Beware: This should not be used instead of PathJoinSubstitution for paths,
     as that is platform independent.
     """
@@ -51,17 +50,17 @@ class JoinSubstitutions(Substitution):
 
     def __radd__(self, substitutions: SomeSubstitutionsType) -> JoinSubstitutions:
         return JoinSubstitutions(substitutions, self.__join_symbol).extend(self.__substitutions)
-    
+
     def __nonzero__(self) -> bool:
         return len(self.__substitutions) != 0
 
     def __mul__(self, integer: int) -> JoinSubstitutions:
         if integer < 0:
             raise ValueError("Negative multiplications are not possible." +
-            " For Substitution: '{}'".format(self.describe()))
+                             " For Substitution: '{}'".format(self.describe()))
         if floor(integer) != integer:
             raise ValueError("Non-integer multiplications are not possible." +
-            " For Substitution: '{}'".format(self.describe()))
+                             " For Substitution: '{}'".format(self.describe()))
         new_substitution = JoinSubstitutions(join_symbol=self.__join_symbol)
         for i in range(integer):
             new_substitution += self
@@ -80,6 +79,7 @@ class JoinSubstitutions(Substitution):
             if self.describe() == other.describe():
                 return True
         return False
+
     @property
     def list_of_substitutions(self) -> List[SomeSubstitutionsType]:
         """Getter for substitutions."""
@@ -90,11 +90,12 @@ class JoinSubstitutions(Substitution):
         """Getter for substitutions."""
         return self.__join_symbol
 
-    def extend(self, substitutions: SomeSubstitutionsType) -> self:
+    def extend(self, substitutions: SomeSubstitutionsType) -> JoinSubstitutions:
         """
         Extend substitutions or list of substitutions to the existing ones.
+
         If it's the list contains another list, a sub_list, the sub_list will be made into
-        a JoinSubstitution(sub_list)
+        a JoinSubstitution(sub_list).
         """
         try:
             if isinstance(substitutions, List):
@@ -107,7 +108,9 @@ class JoinSubstitutions(Substitution):
                 self.__substitutions.extend(normalize_to_list_of_substitutions(substitutions))
             return self
         except TypeError:
-            raise SubstitutionFailure(f'Cannot join a "{type(substitutions).__name__}" object as substitution.')
+            raise SubstitutionFailure(
+                f'Cannot join a "{type(substitutions).__name__}" object as substitution.'
+            )
 
     def set_join_symbol(self, symbol: Text) -> None:
         self.__join_symbol = symbol
