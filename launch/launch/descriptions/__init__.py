@@ -18,7 +18,9 @@
 """descriptions Module."""
 
 from .executable import Executable
+from .launch_argument import LaunchArgument
 
 __all__ = [
-    'Executable'
+    'Executable',
+    'LaunchArgument'
 ]
